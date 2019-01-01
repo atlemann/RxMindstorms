@@ -2,13 +2,6 @@
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using System.Runtime.InteropServices.WindowsRuntime;
-
-#if WINRT
-using Windows.Foundation.Metadata;
-using Windows.Foundation;
-using Windows.Storage.Streams;
-#endif
 
 namespace Lego.Ev3.Core
 {
@@ -57,9 +50,9 @@ namespace Lego.Ev3.Core
 		public void Initialize(CommandType commandType, ushort globalSize, int localSize)
 		{
 			if(globalSize > 1024)
-				throw new ArgumentException("Global buffer must be less than 1024 bytes", "globalSize");
+				throw new ArgumentException("Global buffer must be less than 1024 bytes", nameof(globalSize));
 			if(localSize > 64)
-				throw new ArgumentException("Local buffer must be less than 64 bytes", "localSize");
+				throw new ArgumentException("Local buffer must be less than 64 bytes", nameof(localSize));
 
 			_stream = new MemoryStream();
 			_writer = new BinaryWriter(_stream);
@@ -203,7 +196,7 @@ namespace Lego.Ev3.Core
 		public void TurnMotorAtPower(OutputPort ports, int power)
 		{
 			if(power < -100 || power > 100)
-				throw new ArgumentException("Power must be between -100 and 100 inclusive.", "power");
+				throw new ArgumentException("Power must be between -100 and 100 inclusive.", nameof(power));
 
 			AddOpcode(Opcode.OutputPower);
 			AddParameter(0x00);			// layer
@@ -219,7 +212,7 @@ namespace Lego.Ev3.Core
 		public void TurnMotorAtSpeed(OutputPort ports, int speed)
 		{
 			if(speed < -100 || speed > 100)
-				throw new ArgumentException("Speed must be between -100 and 100 inclusive.", "speed");
+				throw new ArgumentException("Speed must be between -100 and 100 inclusive.", nameof(speed));
 
 			AddOpcode(Opcode.OutputSpeed);
 			AddParameter(0x00);			// layer
@@ -251,7 +244,7 @@ namespace Lego.Ev3.Core
 		public void StepMotorAtPower(OutputPort ports, int power, uint rampUpSteps, uint constantSteps, uint rampDownSteps, bool brake)
 		{
 			if(power < -100 || power > 100)
-				throw new ArgumentException("Power must be between -100 and 100 inclusive.", "power");
+				throw new ArgumentException("Power must be between -100 and 100 inclusive.", nameof(power));
 
 			AddOpcode(Opcode.OutputStepPower);
 			AddParameter(0x00);			// layer
@@ -287,7 +280,7 @@ namespace Lego.Ev3.Core
 		public void StepMotorAtSpeed(OutputPort ports, int speed, uint rampUpSteps, uint constantSteps, uint rampDownSteps, bool brake)
 		{
 			if(speed < -100 || speed > 100)
-				throw new ArgumentException("Speed must be between -100 and 100 inclusive.", "speed");
+				throw new ArgumentException("Speed must be between -100 and 100 inclusive.", nameof(speed));
 
 			AddOpcode(Opcode.OutputStepSpeed);
 			AddParameter(0x00);			// layer
@@ -325,7 +318,7 @@ namespace Lego.Ev3.Core
 		public void TurnMotorAtPowerForTime(OutputPort ports, int power, uint msRampUp, uint msConstant, uint msRampDown, bool brake)
 		{
 			if(power < -100 || power > 100)
-				throw new ArgumentException("Power must be between -100 and 100 inclusive.", "power");
+				throw new ArgumentException("Power must be between -100 and 100 inclusive.", nameof(power));
 
 			AddOpcode(Opcode.OutputTimePower);
 			AddParameter(0x00);			// layer
@@ -363,7 +356,7 @@ namespace Lego.Ev3.Core
 		public void TurnMotorAtSpeedForTime(OutputPort ports, int speed, uint msRampUp, uint msConstant, uint msRampDown, bool brake)
 		{
 			if(speed < -100 || speed > 100)
-				throw new ArgumentException("Speed must be between -100 and 100 inclusive.", "speed");
+				throw new ArgumentException("Speed must be between -100 and 100 inclusive.", nameof(speed));
 
 			AddOpcode(Opcode.OutputTimeSpeed);
 			AddParameter(0x00);			// layer
@@ -400,10 +393,10 @@ namespace Lego.Ev3.Core
 		public void StepMotorSync(OutputPort ports, int speed, short turnRatio, uint step, bool brake)
 		{
 			if(speed < -100 || speed > 100)
-				throw new ArgumentException("Speed must be between -100 and 100", "speed");
+				throw new ArgumentException("Speed must be between -100 and 100", nameof(speed));
 
 			if(turnRatio < -200 || turnRatio > 200)
-				throw new ArgumentException("Turn ratio must be between -200 and 200", "turnRatio");
+				throw new ArgumentException("Turn ratio must be between -200 and 200", nameof(turnRatio));
 
 			AddOpcode(Opcode.OutputStepSync);
 			AddParameter(0x00);
@@ -426,10 +419,10 @@ namespace Lego.Ev3.Core
 		public void TimeMotorSync(OutputPort ports, int speed, short turnRatio, uint time, bool brake)
 		{
 			if(speed < -100 || speed > 100)
-				throw new ArgumentException("Speed must be between -100 and 100", "speed");
+				throw new ArgumentException("Speed must be between -100 and 100", nameof(speed));
 
 			if(turnRatio < -200 || turnRatio > 200)
-				throw new ArgumentException("Turn ratio must be between -200 and 200", "turnRatio");
+				throw new ArgumentException("Turn ratio must be between -200 and 200", nameof(turnRatio));
 
 			AddOpcode(Opcode.OutputTimeSync);
 			AddParameter(0x00);
@@ -481,7 +474,7 @@ namespace Lego.Ev3.Core
 		public void PlayTone(int volume, ushort frequency, ushort duration)
 		{
 			if(volume < 0 || volume > 100)
-				throw new ArgumentException("Volume must be between 0 and 100", "volume");
+				throw new ArgumentException("Volume must be between 0 and 100", nameof(volume));
 
 			AddOpcode(Opcode.Sound_Tone);
 			AddParameter((byte)volume);		// volume
@@ -497,7 +490,7 @@ namespace Lego.Ev3.Core
 		public void PlaySound(int volume, string filename)
 		{
 			if(volume < 0 || volume > 100)
-				throw new ArgumentException("Volume must be between 0 and 100", "volume");
+				throw new ArgumentException("Volume must be between 0 and 100", nameof(volume));
 
 			AddOpcode(Opcode.Sound_Play);
 			AddParameter((byte)volume);
@@ -512,9 +505,9 @@ namespace Lego.Ev3.Core
 		public void GetFirwmareVersion(uint maxLength, uint index)
 		{
 			if(maxLength > 0xff)
-				throw new ArgumentException("String length cannot be greater than 255 bytes", "maxLength");
+				throw new ArgumentException("String length cannot be greater than 255 bytes", nameof(maxLength));
 			if(index > 1024)
-				throw new ArgumentException("Index cannot be greater than 1024", "index");
+				throw new ArgumentException("Index cannot be greater than 1024", nameof(index));
 
 			AddOpcode(Opcode.UIRead_GetFirmware);
 			AddParameter((byte)maxLength);		// global buffer size
@@ -529,7 +522,7 @@ namespace Lego.Ev3.Core
 		public void IsBrickButtonPressed(BrickButton button, int index)
 		{
 			if(index > 1024)
-				throw new ArgumentException("Index cannot be greater than 1024", "index");
+				throw new ArgumentException("Index cannot be greater than 1024", nameof(index));
 
 			AddOpcode(Opcode.UIButton_Pressed);
 			AddParameter((byte)button);
@@ -763,9 +756,9 @@ namespace Lego.Ev3.Core
 		public void GetTypeMode(InputPort port, uint typeIndex, uint modeIndex)
 		{
 			if(typeIndex > 1024)
-				throw new ArgumentException("Index for Type cannot be greater than 1024", "typeIndex");
+				throw new ArgumentException("Index for Type cannot be greater than 1024", nameof(typeIndex));
 			if(modeIndex > 1024)
-				throw new ArgumentException("Index for Mode cannot be greater than 1024", "modeIndex");
+				throw new ArgumentException("Index for Mode cannot be greater than 1024", nameof(modeIndex));
 		
 			AddOpcode(Opcode.InputDevice_GetTypeMode);
 			AddParameter(0x00);			// layer
@@ -783,7 +776,7 @@ namespace Lego.Ev3.Core
 		public void ReadySI(InputPort port, int mode, int index)
 		{
 			if(index > 1024)
-				throw new ArgumentException("Index cannot be greater than 1024", "index");
+				throw new ArgumentException("Index cannot be greater than 1024", nameof(index));
 
 			AddOpcode(Opcode.InputDevice_ReadySI);
 			AddParameter(0x00);				// layer
@@ -803,7 +796,7 @@ namespace Lego.Ev3.Core
 		public void ReadyRaw(InputPort port, int mode, int index)
 		{
 			if(index > 1024)
-				throw new ArgumentException("Index cannot be greater than 1024", "index");
+				throw new ArgumentException("Index cannot be greater than 1024", nameof(index));
 
 			AddOpcode(Opcode.InputDevice_ReadyRaw);
 			AddParameter(0x00);				// layer
@@ -823,7 +816,7 @@ namespace Lego.Ev3.Core
 		public void ReadyPercent(InputPort port, int mode, int index)
 		{
 			if(index > 1024)
-				throw new ArgumentException("Index cannot be greater than 1024", "index");
+				throw new ArgumentException("Index cannot be greater than 1024", nameof(index));
 
 			AddOpcode(Opcode.InputDevice_ReadyPct);
 			AddParameter(0x00);				// layer
@@ -843,7 +836,7 @@ namespace Lego.Ev3.Core
 		public void GetDeviceName(InputPort port, int bufferSize, int index)
 		{
 			if(index > 1024)
-				throw new ArgumentException("Index cannot be greater than 1024", "index");
+				throw new ArgumentException("Index cannot be greater than 1024", nameof(index));
 
 			AddOpcode(Opcode.InputDevice_GetDeviceName);
 			AddParameter(0x00);
@@ -862,7 +855,7 @@ namespace Lego.Ev3.Core
 		public void GetModeName(InputPort port, int mode, int bufferSize, int index)
 		{
 			if(index > 1024)
-				throw new ArgumentException("Index cannot be greater than 1024", "index");
+				throw new ArgumentException("Index cannot be greater than 1024", nameof(index));
 
 			AddOpcode(Opcode.InputDevice_GetModeName);
 			AddParameter(0x00);

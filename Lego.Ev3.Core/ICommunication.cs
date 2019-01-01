@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
-#if WINRT
-using Windows.Foundation;
-#endif
 
 namespace Lego.Ev3.Core
 {
@@ -19,13 +15,8 @@ namespace Lego.Ev3.Core
 
 		/// <summary>
 		/// Connect to the EV3 brick.
-		/// </summary>
-#if WINRT
-		IAsyncAction
-#else
-		Task
-#endif
-		ConnectAsync();
+		/// </summary>Task
+		Task ConnectAsync();
 
 		/// <summary>
 		/// Disconnect from the EV3 brick.
@@ -35,12 +26,7 @@ namespace Lego.Ev3.Core
 		/// <summary>
 		/// Write a report to the EV3 brick.
 		/// </summary>
-		/// <param name="data"></param>
-#if WINRT
-		IAsyncAction
-#else
-		Task
-#endif
-		WriteAsync([ReadOnlyArray]byte[] data);
+		/// <param name="data"></param>Task
+		Task WriteAsync(byte[] data);
 	}
 }

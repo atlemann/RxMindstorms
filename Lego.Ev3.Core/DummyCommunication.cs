@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
-#if WINRT
-using Windows.Foundation;
-#endif
 
 namespace Lego.Ev3.Core
 {
@@ -16,30 +12,15 @@ namespace Lego.Ev3.Core
 		/// <summary>
 		/// Event fired when a complete report is received from the EV3 brick.  In this dummy implementation, the event is never fired.
 		/// </summary>
-		public event EventHandler<ReportReceivedEventArgs> ReportReceived
-#if WINRT
-		;
-#else
-		{ add {} remove {} }
-#endif
+		public event EventHandler<ReportReceivedEventArgs> ReportReceived { add {} remove {} }
 
 	/// <summary>
 	/// Test Connect method.
 	/// </summary>
 	/// <returns></returns>
-	public
-#if WINRT
-	IAsyncAction
-#else
-	Task
-#endif
-		ConnectAsync()
+	public Task ConnectAsync()
 		{
-			return Task.Run(() => Debug.WriteLine("connected"))
-#if WINRT
-			.AsAsyncAction()
-#endif
-			;
+			return Task.Run(() => Debug.WriteLine("connected"));
 		}
 
 		/// <summary>
@@ -54,13 +35,7 @@ namespace Lego.Ev3.Core
 		/// </summary>
 		/// <param name="data">Byte array to be written.</param>
 		/// <returns></returns>
-		public
-#if WINRT
-		IAsyncAction
-#else
-		Task
-#endif
-		WriteAsync([ReadOnlyArray]byte[] data)
+		public Task WriteAsync(byte[] data)
 		{
 			return Task.Run(() => 
 			{
@@ -68,11 +43,7 @@ namespace Lego.Ev3.Core
 				for(int i = 3; i < data.Length; i++)
 					s += data[i].ToString("X2") + " ";
 				Debug.WriteLine("Write: " + s);
-			})
-#if WINRT
-			.AsAsyncAction()
-#endif
-			;
+			});
 		}
 	}
 }

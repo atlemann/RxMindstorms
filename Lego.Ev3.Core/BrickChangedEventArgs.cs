@@ -6,10 +6,7 @@ namespace Lego.Ev3.Core
 	/// <summary>
 	/// Arguments for PortsChanged event
 	/// </summary>
-	public sealed class BrickChangedEventArgs
-#if !WINRT
-		: EventArgs
-#endif
+	public sealed class BrickChangedEventArgs : EventArgs
 	{
 		/// <summary>
 		/// A map of all ports on the EV3 brick
