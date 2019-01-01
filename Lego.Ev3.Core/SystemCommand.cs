@@ -1,16 +1,6 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using System.Runtime.InteropServices.WindowsRuntime;
-
-#if WINRT
-using Windows.Foundation;
-using Windows.Foundation.Metadata;
-using Windows.Storage;
-using Windows.Storage.Streams;
-#elif WINDOWS_PHONE
-using System.IO.IsolatedStorage;
-#endif
 
 namespace Lego.Ev3.Core
 {
@@ -33,22 +23,11 @@ namespace Lego.Ev3.Core
 		/// <param name="devicePath">Destination path on the brick.</param>
 		/// <returns></returns>
 		///	<remarks>devicePath is relative from "lms2012/sys" on the EV3 brick.  Destination folders are automatically created if provided in the path.  The path must start with "apps", "prjs", or "tools".</remarks>
-		public 
-#if WINRT
-		IAsyncAction
-#else
-		Task
-#endif
-		WriteFileAsync([ReadOnlyArray]byte[] data, string devicePath)
+		public Task WriteFileAsync(byte[] data, string devicePath)
 		{
-			return WriteFileAsyncInternal(data, devicePath)
-#if WINRT
-			.AsAsyncAction()
-#endif
-			;
+			return WriteFileAsyncInternal(data, devicePath);
 		}
 
-#if !ANDROID
 		/// <summary>
 		/// Copy a local file to the EV3 brick
 		/// </summary>
@@ -56,21 +35,10 @@ namespace Lego.Ev3.Core
 		/// <param name="devicePath">Destination path on the brick.</param>
 		/// <returns></returns>
 		///	<remarks>devicePath is relative from "lms2012/sys" on the EV3 brick.  Destination folders are automatically created if provided in the path.  The path must start with "apps", "prjs", or "tools".</remarks>
-		public 
-#if WINRT
-		IAsyncAction
-#else
-		Task
-#endif
-		CopyFileAsync(string localPath, string devicePath)
+		public Task CopyFileAsync(string localPath, string devicePath)
 		{
-			return CopyFileAsyncInternal(localPath, devicePath)
-#if WINRT
-			.AsAsyncAction()
-#endif
-			;
+			return CopyFileAsyncInternal(localPath, devicePath);
 		}
-#endif
 
 		/// <summary>
 		/// Create a directory on the EV3 brick
@@ -78,19 +46,9 @@ namespace Lego.Ev3.Core
 		/// <param name="devicePath">Destination path on the brick.</param>
 		/// <returns></returns>
 		///	<remarks>devicePath is relative from "lms2012/sys" on the EV3 brick.  Destination folders are automatically created if provided in the path.  The path must start with "apps", "prjs", or "tools".</remarks>
-		public 
-#if WINRT
-		IAsyncAction
-#else
-		Task
-#endif
-		CreateDirectoryAsync(string devicePath)
+		public Task CreateDirectoryAsync(string devicePath)
 		{
-			return CreateDirectoryAsyncInternal(devicePath)
-#if WINRT
-			.AsAsyncAction()
-#endif
-			;
+			return CreateDirectoryAsyncInternal(devicePath);
 		}
 
 		/// <summary>
@@ -99,19 +57,9 @@ namespace Lego.Ev3.Core
 		/// <param name="devicePath">Destination path on the brick.</param>
 		/// <returns></returns>
 		/// <remarks>devicePath is relative from "lms2012/sys" on the EV3 brick.  The path must start with "apps", "prjs", or "tools".</remarks>
-		public 
-#if WINRT
-		IAsyncAction
-#else
-		Task
-#endif
-		DeleteFileAsync(string devicePath)
+		public Task DeleteFileAsync(string devicePath)
 		{
-			return DeleteFileAsyncInternal(devicePath)
-#if WINRT
-			.AsAsyncAction()
-#endif
-			;
+			return DeleteFileAsyncInternal(devicePath);
 		}
 
 		internal async Task DeleteFileAsyncInternal(string devicePath)
@@ -179,35 +127,9 @@ namespace Lego.Ev3.Core
 			//	throw new Exception("Could not close handle: " + commandClose.Response.SystemReplyStatus);
 		}
 
-#if WINRT
-		private async Task<byte[]> GetFileContents(string localPath)
-		{
-			StorageFile sf = await StorageFile.GetFileFromPathAsync(localPath);
-			IBuffer buffer = await FileIO.ReadBufferAsync(sf);
-			return buffer.ToArray();
-		}
-#elif WINDOWS_PHONE
-		private async Task<byte[]> GetFileContents(string localPath)
-		{
-			IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication();
-			IsolatedStorageFileStream stream = isf.OpenFile(localPath, FileMode.Open);
-
-			byte[] data = new byte[stream.Length];
-
-			await stream.ReadAsync(data, 0, data.Length);
-
-			return data;
-		}
-#elif ANDROID
-		private Task<byte[]> GetFileContents(string localPath)
-		{
-			throw new NotImplementedException("On Android, please use WriteFileAsync instead of CopyFileAsync");
-		}
-#else
 		private Task<byte[]> GetFileContents(string localPath)
 		{
 			return Task.FromResult(File.ReadAllBytes(localPath));
 		}
-#endif
 	}
 }

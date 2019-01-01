@@ -1,9 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading;
-#if WINRT
-using Windows.Foundation.Metadata;
-#endif
 
 namespace Lego.Ev3.Core
 {
@@ -89,9 +86,6 @@ namespace Lego.Ev3.Core
 		/// Set the connected sensor's mode
 		/// </summary>
 		/// <param name="mode">The requested mode.</param>
-#if WINRT
-		[DefaultOverload]
-#endif
 		public void SetMode(byte mode)
 		{
 			Mode = mode;

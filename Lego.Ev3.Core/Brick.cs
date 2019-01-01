@@ -2,11 +2,6 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Runtime.InteropServices.WindowsRuntime;
-#if WINRT
-using Windows.Foundation;
-using Windows.Storage.Streams;
-#endif
 
 namespace Lego.Ev3.Core
 {
@@ -18,17 +13,17 @@ namespace Lego.Ev3.Core
 		/// <summary>
 		/// Width of LCD screen
 		/// </summary>
-		public ushort LcdWidth { get { return 178; } }
+		public ushort LcdWidth => 178;
 
 		/// <summary>
 		/// Height of LCD screen
 		/// </summary>
-		public ushort LcdHeight { get { return 128; } }
+		public ushort LcdHeight => 128;
 
 		/// <summary>
 		/// Height of status bar
 		/// </summary>
-		public ushort TopLineHeight { get { return 10; } }
+		public ushort TopLineHeight => 10;
 
 		private readonly SynchronizationContext _context = SynchronizationContext.Current;
 		private readonly ICommunication _comm;
@@ -51,17 +46,17 @@ namespace Lego.Ev3.Core
 		/// <summary>
 		/// Send "direct commands" to the EV3 brick.  These commands are executed instantly and are not batched.
 		/// </summary>
-		public DirectCommand DirectCommand { get { return _directCommand; } }
+		public DirectCommand DirectCommand => _directCommand;
 
 		/// <summary>
 		/// Send "system commands" to the EV3 brick.  These commands are executed instantly and are not batched.
 		/// </summary>
-		public SystemCommand SystemCommand { get { return _systemCommand; } }
+		public SystemCommand SystemCommand => _systemCommand;
 
 		/// <summary>
 		/// Send a batch command of multiple direct commands at once.  Call the <see cref="Command.Initialize"/> method with the proper <see cref="CommandType"/> to set the type of command the batch should be executed as.
 		/// </summary>
-		public Command BatchCommand { get { return _batchCommand; } }
+		public Command BatchCommand => _batchCommand;
 
 		/// <summary>
 		/// Event that is fired when a port is changed
@@ -91,7 +86,7 @@ namespace Lego.Ev3.Core
 
 			int index = 0;
 
-			_comm = comm;
+			_comm = comm ?? throw new ArgumentNullException(nameof(comm));
 			_comm.ReportReceived += ReportReceived;
 
 			Ports = new Dictionary<InputPort,Port>();
@@ -111,19 +106,9 @@ namespace Lego.Ev3.Core
 		/// Connect to the EV3 brick.
 		/// </summary>
 		/// <returns></returns>
-		public 
-#if WINRT
-		IAsyncAction
-#else
-		Task
-#endif
-		ConnectAsync()
+		public Task ConnectAsync()
 		{
-			return ConnectAsyncInternal(TimeSpan.FromMilliseconds(100))
-#if WINRT
-			.AsAsyncAction()
-#endif
-			;
+			return ConnectAsyncInternal(TimeSpan.FromMilliseconds(100));
 		}
 
 		/// <summary>
@@ -131,19 +116,9 @@ namespace Lego.Ev3.Core
 		/// </summary>
 		/// <param name="pollingTime">The period to poll the device status.  Set to TimeSpan.Zero to disable polling.</param>
 		/// <returns></returns>
-		public  
-#if WINRT
-		IAsyncAction
-#else
-		Task
-#endif
-		ConnectAsync(TimeSpan pollingTime)
+		public Task ConnectAsync(TimeSpan pollingTime)
 		{
-			return ConnectAsyncInternal(pollingTime)
-#if WINRT
-			.AsAsyncAction()
-#endif
-			;
+			return ConnectAsyncInternal(pollingTime);
 		}
 
 		private async Task ConnectAsyncInternal(TimeSpan pollingTime)
@@ -174,9 +149,7 @@ namespace Lego.Ev3.Core
 		/// </summary>
 		public void Disconnect()
 		{
-			if(_tokenSource != null)
-				_tokenSource.Cancel();
-
+			_tokenSource?.Cancel();
 			_comm.Disconnect();
 		}
 
@@ -203,6 +176,7 @@ namespace Lego.Ev3.Core
 			foreach(InputPort i in Enum.GetValues(typeof(InputPort)))
 			{
 				Port p = Ports[i];
+				
 				index = p.Index * responseSize;
 
 				c.GetTypeMode(p.InputPort, (byte)index, (byte)(index+1));
