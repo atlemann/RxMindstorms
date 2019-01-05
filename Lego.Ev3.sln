@@ -1,0 +1,54 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26124.0
+MinimumVisualStudioVersion = 15.0.26124.0
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{EA50D685-4CCE-4FFC-8A8F-9E9291051313}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lego.Ev3.App", "src\Lego.Ev3.App\Lego.Ev3.App.csproj", "{43CE1B0B-CA6B-461A-9D8E-D436B85D1392}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lego.Ev3.Core", "src\Lego.Ev3.Core\Lego.Ev3.Core.csproj", "{971F3C05-794B-4664-BE9D-4CBE6857D01D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{43CE1B0B-CA6B-461A-9D8E-D436B85D1392}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43CE1B0B-CA6B-461A-9D8E-D436B85D1392}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43CE1B0B-CA6B-461A-9D8E-D436B85D1392}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{43CE1B0B-CA6B-461A-9D8E-D436B85D1392}.Debug|x64.Build.0 = Debug|Any CPU
+		{43CE1B0B-CA6B-461A-9D8E-D436B85D1392}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{43CE1B0B-CA6B-461A-9D8E-D436B85D1392}.Debug|x86.Build.0 = Debug|Any CPU
+		{43CE1B0B-CA6B-461A-9D8E-D436B85D1392}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43CE1B0B-CA6B-461A-9D8E-D436B85D1392}.Release|Any CPU.Build.0 = Release|Any CPU
+		{43CE1B0B-CA6B-461A-9D8E-D436B85D1392}.Release|x64.ActiveCfg = Release|Any CPU
+		{43CE1B0B-CA6B-461A-9D8E-D436B85D1392}.Release|x64.Build.0 = Release|Any CPU
+		{43CE1B0B-CA6B-461A-9D8E-D436B85D1392}.Release|x86.ActiveCfg = Release|Any CPU
+		{43CE1B0B-CA6B-461A-9D8E-D436B85D1392}.Release|x86.Build.0 = Release|Any CPU
+		{971F3C05-794B-4664-BE9D-4CBE6857D01D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{971F3C05-794B-4664-BE9D-4CBE6857D01D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{971F3C05-794B-4664-BE9D-4CBE6857D01D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{971F3C05-794B-4664-BE9D-4CBE6857D01D}.Debug|x64.Build.0 = Debug|Any CPU
+		{971F3C05-794B-4664-BE9D-4CBE6857D01D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{971F3C05-794B-4664-BE9D-4CBE6857D01D}.Debug|x86.Build.0 = Debug|Any CPU
+		{971F3C05-794B-4664-BE9D-4CBE6857D01D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{971F3C05-794B-4664-BE9D-4CBE6857D01D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{971F3C05-794B-4664-BE9D-4CBE6857D01D}.Release|x64.ActiveCfg = Release|Any CPU
+		{971F3C05-794B-4664-BE9D-4CBE6857D01D}.Release|x64.Build.0 = Release|Any CPU
+		{971F3C05-794B-4664-BE9D-4CBE6857D01D}.Release|x86.ActiveCfg = Release|Any CPU
+		{971F3C05-794B-4664-BE9D-4CBE6857D01D}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{43CE1B0B-CA6B-461A-9D8E-D436B85D1392} = {EA50D685-4CCE-4FFC-8A8F-9E9291051313}
+		{971F3C05-794B-4664-BE9D-4CBE6857D01D} = {EA50D685-4CCE-4FFC-8A8F-9E9291051313}
+	EndGlobalSection
+EndGlobal
