@@ -3,7 +3,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Lego.Ev3.Core
+namespace RxMindstorms.Core
 {
 	/// <summary>
 	/// Command or chain of commands to be written to the EV3 brick

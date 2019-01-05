@@ -5,7 +5,7 @@ using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Lego.Ev3.Core
+namespace RxMindstorms.Core
 {
 	/// <summary>
 	/// Main EV3 brick interface

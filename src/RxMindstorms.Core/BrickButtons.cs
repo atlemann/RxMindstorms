@@ -1,4 +1,4 @@
-﻿namespace Lego.Ev3.Core
+﻿namespace RxMindstorms.Core
 {
 	/// <summary>
 	/// Buttons on the face of the LEGO EV3 brick

@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 
-namespace Lego.Ev3.Core
+namespace RxMindstorms.Core
 {
 	internal class Response
 	{

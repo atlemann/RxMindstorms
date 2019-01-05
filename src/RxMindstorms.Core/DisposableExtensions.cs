@@ -1,4 +1,7 @@
-namespace System.Reactive.Disposables
+using System;
+using System.Reactive.Disposables;
+
+namespace RxMindstorms.Core
 {
     public static class DisposableExtensions
     {

@@ -1,12 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <ItemGroup>
-    <ProjectReference Include="..\Lego.Ev3.Core\Lego.Ev3.Core.csproj" />
+    <ProjectReference Include="..\RxMindstorms.Core\RxMindstorms.Core.csproj" />
   </ItemGroup>
-
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.1</TargetFramework>
   </PropertyGroup>
-
 </Project>

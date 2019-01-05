@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Lego.Ev3.Core
+namespace RxMindstorms.Core
 {
 	internal static class ResponseManager
 	{

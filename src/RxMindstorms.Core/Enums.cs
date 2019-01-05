@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Lego.Ev3.Core
+namespace RxMindstorms.Core
 {
 	enum ArgumentSize
 	{

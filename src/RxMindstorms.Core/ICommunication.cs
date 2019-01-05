@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Lego.Ev3.Core
+namespace RxMindstorms.Core
 {
 	/// <summary>
 	/// Interface for communicating with the EV3 brick

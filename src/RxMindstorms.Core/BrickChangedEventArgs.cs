@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Lego.Ev3.Core
+namespace RxMindstorms.Core
 {
 	/// <summary>
 	/// Arguments for PortsChanged event

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Reactive.Linq;
-using Lego.Ev3.Core;
+using RxMindstorms.Core;
 
-namespace Lego.Ev3.App
+namespace RxMindstorms.App
 {
     public static class Program
     {

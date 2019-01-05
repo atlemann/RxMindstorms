@@ -2,7 +2,7 @@ using System;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Lego.Ev3.Core
+namespace RxMindstorms.Core
 {
 	/// <summary>
 	/// Direct commands for the EV3 brick
