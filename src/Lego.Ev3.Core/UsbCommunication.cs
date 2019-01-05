@@ -22,7 +22,7 @@ namespace Lego.Ev3.Core
 		private readonly string _brickName;
 		private HidStream _stream;
 
-		public UsbCommunication(string brickName = "EV3OLAV")
+		public UsbCommunication(string brickName)
 		{
 			_brickName = brickName;
 		}
