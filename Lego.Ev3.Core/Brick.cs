@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -27,7 +29,6 @@ namespace Lego.Ev3.Core
 
 		private readonly SynchronizationContext _context = SynchronizationContext.Current;
 		private readonly ICommunication _comm;
-		private CancellationTokenSource _tokenSource;
 		private readonly bool _alwaysSendEvents;
 		private readonly DirectCommand _directCommand;
 		private readonly SystemCommand _systemCommand;
@@ -87,7 +88,6 @@ namespace Lego.Ev3.Core
 			int index = 0;
 
 			_comm = comm ?? throw new ArgumentNullException(nameof(comm));
-			_comm.ReportReceived += ReportReceived;
 
 			Ports = new Dictionary<InputPort,Port>();
 
@@ -106,57 +106,44 @@ namespace Lego.Ev3.Core
 		/// Connect to the EV3 brick.
 		/// </summary>
 		/// <returns></returns>
-		public Task ConnectAsync()
-		{
-			return ConnectAsyncInternal(TimeSpan.FromMilliseconds(100));
-		}
+		public IObservable<BrickChangedEventArgs> Connect() =>
+			Connect(TimeSpan.FromMilliseconds(100));
 
 		/// <summary>
 		/// Connect to the EV3 brick with a specified polling time.
 		/// </summary>
 		/// <param name="pollingTime">The period to poll the device status.  Set to TimeSpan.Zero to disable polling.</param>
 		/// <returns></returns>
-		public Task ConnectAsync(TimeSpan pollingTime)
-		{
-			return ConnectAsyncInternal(pollingTime);
-		}
-
-		private async Task ConnectAsyncInternal(TimeSpan pollingTime)
-		{
-			_tokenSource = new CancellationTokenSource();
-
-			await _comm.ConnectAsync();
-
-			await _directCommand.StopMotorAsync(OutputPort.All, false);
-
-			if(pollingTime != TimeSpan.Zero)
+		public IObservable<BrickChangedEventArgs> Connect(TimeSpan pollingTime) =>
+			Observable.Create<BrickChangedEventArgs>(observer =>
 			{
-				Task t = Task.Factory.StartNew(async () =>
-				{
-					while(!_tokenSource.IsCancellationRequested)
-					{
-						await PollSensorsAsync();
-						await Task.Delay(pollingTime, _tokenSource.Token);
-					}
+				var compositeDisposable =
+					new CompositeDisposable();
 
-					await _directCommand.StopMotorAsync(OutputPort.All, false);
-				}, _tokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Current);
-			}
-		}
+				_comm
+					.Connect()
+					.Do(e => ResponseManager.HandleResponse(e.Report))
+					.Subscribe()
+					.DisposeWith(compositeDisposable);
 
-		/// <summary>
-		/// Disconnect from the EV3 brick
-		/// </summary>
-		public void Disconnect()
-		{
-			_tokenSource?.Cancel();
-			_comm.Disconnect();
-		}
+				_directCommand.StopMotorAsync(OutputPort.All, false);
 
-		private void ReportReceived(object sender, ReportReceivedEventArgs e)
-		{
-			ResponseManager.HandleResponse(e.Report);
-		}
+				Observable
+					.Interval(pollingTime)
+					.SelectMany(async _ =>
+						{
+							var result =
+								await PollSensorsAsync();
+							await _directCommand
+								.StopMotorAsync(OutputPort.All, false);
+							return result;
+						})
+					.Where(e => e != null)
+					.Subscribe(observer)
+					.DisposeWith(compositeDisposable);
+
+				return compositeDisposable;
+			});
 
 		internal async Task SendCommandAsyncInternal(Command c)
 		{
@@ -165,7 +152,7 @@ namespace Lego.Ev3.Core
 				await ResponseManager.WaitForResponseAsync(c.Response);
 		}
 
-		private async Task PollSensorsAsync()
+		private async Task<BrickChangedEventArgs> PollSensorsAsync()
 		{
 			bool changed = false;
 			const int responseSize = 11;
@@ -196,7 +183,7 @@ namespace Lego.Ev3.Core
 
 			await SendCommandAsyncInternal(c);
 			if(c.Response.Data == null)
-				return;
+				return null;
 
 			foreach(InputPort i in Enum.GetValues(typeof(InputPort)))
 			{
@@ -237,20 +224,9 @@ namespace Lego.Ev3.Core
 			Buttons.Down	= (c.Response.Data[index+4] == 1);
 			Buttons.Enter	= (c.Response.Data[index+5] == 1);
 
-			if(changed || _alwaysSendEvents)
-				OnBrickChanged(new BrickChangedEventArgs { Ports = this.Ports, Buttons = this.Buttons });
-		}
-
-		private void OnBrickChanged(BrickChangedEventArgs e)
-		{
-			EventHandler<BrickChangedEventArgs> handler = BrickChanged;
-			if(handler != null)
-			{
-				if(_context == SynchronizationContext.Current)
-					handler(this, e);
-				else
-					_context.Post(delegate { handler(this, e); }, null);
-			}
+			return (changed || _alwaysSendEvents)
+				? new BrickChangedEventArgs { Ports = this.Ports, Buttons = this.Buttons }
+				: null;
 		}
 	}
 }
