@@ -62,8 +62,8 @@ namespace RxMindstorms.Core
 		/// <summary>
 		/// Send a batch command of multiple direct commands at once.  Call the <see cref="Command.Initialize"/> method with the proper <see cref="CommandType"/> to set the type of command the batch should be executed as.
 		/// </summary>
-		public Command CreateBatchCommand(CommandType commandType) =>
-			new Command(this, _responseManager.GetSequenceNumber());
+		public Command CreateCommand(CommandType commandType, ushort globalSize = 0, int localSize = 0) =>
+			new Command(commandType, globalSize, localSize, _responseManager.GetSequenceNumber());
 		
 		/// <summary>
 		/// Constructor
@@ -188,7 +188,7 @@ namespace RxMindstorms.Core
 			int index = 0;
 
 			Command command =
-				new Command(CommandType.DirectReply, (8 * responseSize) + 6, 0);
+				CreateCommand(CommandType.DirectReply, (8 * responseSize) + 6, 0);
 
 			foreach(InputPort i in Enum.GetValues(typeof(InputPort)))
 			{

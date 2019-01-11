@@ -10,47 +10,22 @@ namespace RxMindstorms.Core
 	/// </summary>
 	public sealed class Command
 	{
-		private BinaryWriter _writer;
-		private MemoryStream _stream;
-		private readonly Brick _brick;
-		private ushort _sequenceNumber;
+		private readonly ushort  _sequenceNumber;
+		private readonly BinaryWriter _writer;
+		private readonly MemoryStream _stream;
 
-		internal Command(Brick brick) : this(CommandType.DirectNoReply)
-		{
-			_brick = brick;
-		}
-
-		internal Command(Brick brick, ushort sequenceNumber)
-		{
-			_brick = brick;
-			Initialize(CommandType.DirectNoReply, 0, 0, sequenceNumber);
-		}
-
-		internal Command(CommandType commandType) : this(commandType, 0, 0)
+		internal Command(CommandType commandType, ushort sequenceNumber)
+			: this(commandType, 0, 0, sequenceNumber)
 		{
 		}
-
-		internal Command(CommandType commandType, ushort globalSize, int localSize)
-		{
-			//Initialize(commandType, globalSize, localSize);
-		}
-
-		/// <summary>
-		/// Start a new command of a specific type
-		/// </summary>
-		/// <param name="commandType">The type of the command to start</param>
-		public void Initialize(CommandType commandType)
-		{
-			//Initialize(commandType, 0, 0);
-		}
-
+		
 		/// <summary>
 		/// Start a new command of a speicifc type with a global and/or local buffer on the EV3 brick
 		/// </summary>
 		/// <param name="commandType">The type of the command to start</param>
 		/// <param name="globalSize">The size of the global buffer in bytes (maximum of 1024 bytes)</param>
 		/// <param name="localSize">The size of the local buffer in bytes (maximum of 64 bytes)</param>
-		public void Initialize(CommandType commandType, ushort globalSize, int localSize, ushort sequenceNumber)
+		internal Command(CommandType commandType, ushort globalSize, int localSize, ushort sequenceNumber)
 		{
 			if(globalSize > 1024)
 				throw new ArgumentException("Global buffer must be less than 1024 bytes", nameof(globalSize));
@@ -883,18 +858,6 @@ namespace RxMindstorms.Core
 			AddOpcode(Opcode.OutputReady);
 			AddParameter(0x00);			// layer
 			AddParameter((byte)ports);	// ports
-		}
-
-		/// <summary>
-		/// End and send a Command to the EV3 brick.
-		/// </summary>
-		/// <returns>A byte array containing the response from the brick, if any.</returns>
-		public async Task<byte[]> SendCommandAsync()
-		{
-			var response = await _brick.SendCommandAsyncInternal(this);
-			byte[] responseData = response.Data;
-			Initialize(CommandType.DirectNoReply);
-			return responseData;
 		}
 	}
 }

@@ -64,7 +64,7 @@ namespace RxMindstorms.Core
 
 		internal async Task DeleteFileAsyncInternal(string devicePath)
 		{
-			Command c = new Command(CommandType.SystemReply);
+			Command c = _brick.CreateCommand(CommandType.SystemReply);
 			c.DeleteFile(devicePath);
 			Response r = await _brick.SendCommandAsyncInternal(c);
 			if(r.SystemReplyStatus != SystemReplyStatus.Success)
@@ -73,7 +73,7 @@ namespace RxMindstorms.Core
 
 		internal async Task CreateDirectoryAsyncInternal(string devicePath)
 		{
-			Command c = new Command(CommandType.SystemReply);
+			Command c = _brick.CreateCommand(CommandType.SystemReply);
 			c.CreateDirectory(devicePath);
 			Response r = await _brick.SendCommandAsyncInternal(c);
 			if(r.SystemReplyStatus != SystemReplyStatus.Success)
@@ -90,7 +90,7 @@ namespace RxMindstorms.Core
 		{
 			const int chunkSize = 960;
 
-			Command commandBegin = new Command(CommandType.SystemReply);
+			Command commandBegin = _brick.CreateCommand(CommandType.SystemReply);
 			commandBegin.AddOpcode(SystemOpcode.BeginDownload);
 			commandBegin.AddRawParameter((uint)data.Length);
 			commandBegin.AddRawParameter(devicePath);
@@ -104,7 +104,7 @@ namespace RxMindstorms.Core
 
 			while(sizeSent < data.Length)
 			{
-				Command commandContinue = new Command(CommandType.SystemReply);
+				Command commandContinue = _brick.CreateCommand(CommandType.SystemReply);
 				commandContinue.AddOpcode(SystemOpcode.ContinueDownload);
 				commandContinue.AddRawParameter(handle);
 				int sizeToSend = Math.Min(chunkSize, data.Length - sizeSent);
@@ -117,7 +117,7 @@ namespace RxMindstorms.Core
 					throw new Exception("Error saving file: " + response.SystemReplyStatus);
 			}
 
-			//Command commandClose = new Command(CommandType.SystemReply);
+			//Command commandClose = _brick.CreateCommand(CommandType.SystemReply);
 			//commandClose.AddOpcode(SystemOpcode.CloseFileHandle);
 			//commandClose.AddRawParameter(handle);
 			//await _brick.SendCommandAsyncInternal(commandClose);
