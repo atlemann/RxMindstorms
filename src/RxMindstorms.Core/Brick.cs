@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -29,10 +30,14 @@ namespace RxMindstorms.Core
 
 		private readonly SynchronizationContext _context = SynchronizationContext.Current;
 		private readonly ICommunication _comm;
+
+		private readonly ResponseManager _responseManager;
+
 		private readonly bool _alwaysSendEvents;
 		private readonly DirectCommand _directCommand;
 		private readonly SystemCommand _systemCommand;
-		private readonly Command _batchCommand;
+
+		private readonly BehaviorSubject<Response> _subject;
 
 		/// <summary>
 		/// Input and output ports on LEGO EV3 brick
@@ -57,40 +62,36 @@ namespace RxMindstorms.Core
 		/// <summary>
 		/// Send a batch command of multiple direct commands at once.  Call the <see cref="Command.Initialize"/> method with the proper <see cref="CommandType"/> to set the type of command the batch should be executed as.
 		/// </summary>
-		public Command BatchCommand => _batchCommand;
-
-		/// <summary>
-		/// Event that is fired when a port is changed
-		/// </summary>
-		public event EventHandler<BrickChangedEventArgs> BrickChanged;
+		public Command CreateBatchCommand(CommandType commandType) =>
+			new Command(this, _responseManager.GetSequenceNumber());
 		
 		/// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="comm">Object implementing the <see cref="ICommunication"/> interface for talking to the brick</param>
-		public Brick(ICommunication comm) : this(comm, false) { }
+		public Brick(ICommunication comm, ResponseManager responseManager)
+			: this(comm, responseManager, false) { }
 
 		/// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="comm">Object implementing the <see cref="ICommunication"/> interface for talking to the brick</param>
 		/// <param name="alwaysSendEvents">Send events when data changes, or at every poll</param>
-		public Brick(ICommunication comm, bool alwaysSendEvents)
+		public Brick(ICommunication comm, ResponseManager responseManager, bool alwaysSendEvents)
 		{
+			_subject = new BehaviorSubject<Response>(null);
 			_directCommand = new DirectCommand(this);
 			_systemCommand = new SystemCommand(this);
-			_batchCommand = new Command(this);
 
 			Buttons = new BrickButtons();
 
-			_alwaysSendEvents = alwaysSendEvents;
-
-			int index = 0;
-
 			_comm = comm ?? throw new ArgumentNullException(nameof(comm));
+			_responseManager = responseManager ?? throw new ArgumentNullException(nameof(comm));
+			_alwaysSendEvents = alwaysSendEvents;
 
 			Ports = new Dictionary<InputPort,Port>();
 
+			int index = 0;
 			foreach(InputPort i in Enum.GetValues(typeof(InputPort)))
 			{
 				Ports[i] = new Port
@@ -122,8 +123,8 @@ namespace RxMindstorms.Core
 
 				_comm
 					.Connect()
-					.Do(e => ResponseManager.HandleResponse(e.Report))
-					.Subscribe()
+					.Select(e => ResponseManager.CreateResponse(e.Report))
+					.Subscribe(_subject)
 					.DisposeWith(compositeDisposable);
 
 				_directCommand.StopMotorAsync(OutputPort.All, false);
@@ -145,11 +146,39 @@ namespace RxMindstorms.Core
 				return compositeDisposable;
 			});
 
-		internal async Task SendCommandAsyncInternal(Command c)
+		internal async Task<Response> SendCommandAsyncInternal(Command command)
 		{
-			await _comm.WriteAsync(c.ToBytes());
-			if(c.CommandType == CommandType.DirectReply || c.CommandType == CommandType.SystemReply)
-				await ResponseManager.WaitForResponseAsync(c.Response);
+			await _comm.WriteAsync(command.ToBytes());
+			
+			return command.CommandType == CommandType.DirectReply ||
+			       command.CommandType == CommandType.SystemReply
+				? await
+					_subject
+						.Where(r => r != null && r.Sequence == command.SequenceNumber)
+						.FirstAsync()
+				: null;
+		}
+
+		internal IObservable<Response> SendCommand(Command command)
+		{
+			var writeTask =
+				_comm.WriteAsync(command.ToBytes());
+			
+			if (command.CommandType == CommandType.DirectReply ||
+				command.CommandType == CommandType.SystemReply)
+				return 
+					_subject
+						.AsObservable()
+						.Where(r => r != null && r.Sequence == command.SequenceNumber)
+						.FirstAsync();
+
+			return
+				Observable
+					.FromAsync(async () =>
+						{
+							await writeTask;
+							return (Response) null;
+						});
 		}
 
 		private async Task<BrickChangedEventArgs> PollSensorsAsync()
@@ -158,7 +187,8 @@ namespace RxMindstorms.Core
 			const int responseSize = 11;
 			int index = 0;
 
-			Command c = new Command(CommandType.DirectReply, (8 * responseSize) + 6, 0);
+			Command command =
+				new Command(CommandType.DirectReply, (8 * responseSize) + 6, 0);
 
 			foreach(InputPort i in Enum.GetValues(typeof(InputPort)))
 			{
@@ -166,34 +196,36 @@ namespace RxMindstorms.Core
 				
 				index = p.Index * responseSize;
 
-				c.GetTypeMode(p.InputPort, (byte)index, (byte)(index+1));
-				c.ReadySI(p.InputPort, p.Mode, (byte)(index+2));
-				c.ReadyRaw(p.InputPort, p.Mode, (byte)(index+6));
-				c.ReadyPercent(p.InputPort, p.Mode, (byte)(index+10));
+				command.GetTypeMode(p.InputPort, (byte)index, (byte)(index+1));
+				command.ReadySI(p.InputPort, p.Mode, (byte)(index+2));
+				command.ReadyRaw(p.InputPort, p.Mode, (byte)(index+6));
+				command.ReadyPercent(p.InputPort, p.Mode, (byte)(index+10));
 			}
 
 			index += responseSize;
 
-			c.IsBrickButtonPressed(BrickButton.Back,  (byte)(index+0));
-			c.IsBrickButtonPressed(BrickButton.Left,  (byte)(index+1));
-			c.IsBrickButtonPressed(BrickButton.Up,    (byte)(index+2));
-			c.IsBrickButtonPressed(BrickButton.Right, (byte)(index+3));
-			c.IsBrickButtonPressed(BrickButton.Down,  (byte)(index+4));
-			c.IsBrickButtonPressed(BrickButton.Enter, (byte)(index+5));
+			command.IsBrickButtonPressed(BrickButton.Back,  (byte)(index+0));
+			command.IsBrickButtonPressed(BrickButton.Left,  (byte)(index+1));
+			command.IsBrickButtonPressed(BrickButton.Up,    (byte)(index+2));
+			command.IsBrickButtonPressed(BrickButton.Right, (byte)(index+3));
+			command.IsBrickButtonPressed(BrickButton.Down,  (byte)(index+4));
+			command.IsBrickButtonPressed(BrickButton.Enter, (byte)(index+5));
 
-			await SendCommandAsyncInternal(c);
-			if(c.Response.Data == null)
+			var response =
+				await SendCommandAsyncInternal(command);
+
+			if(response?.Data == null)
 				return null;
 
 			foreach(InputPort i in Enum.GetValues(typeof(InputPort)))
 			{
 				Port p = Ports[i];
 
-				int type = c.Response.Data[(p.Index * responseSize)+0];
-				byte mode = c.Response.Data[(p.Index * responseSize)+1];
-				float siValue = BitConverter.ToSingle(c.Response.Data, (p.Index * responseSize)+2);
-				int rawValue = BitConverter.ToInt32(c.Response.Data, (p.Index * responseSize)+6);
-				byte percentValue = c.Response.Data[(p.Index * responseSize)+10];
+				int type = response.Data[(p.Index * responseSize)+0];
+				byte mode = response.Data[(p.Index * responseSize)+1];
+				float siValue = BitConverter.ToSingle(response.Data, (p.Index * responseSize)+2);
+				int rawValue = BitConverter.ToInt32(response.Data, (p.Index * responseSize)+6);
+				byte percentValue = response.Data[(p.Index * responseSize)+10];
 
 				if((byte)p.Type != type || Math.Abs(p.SIValue - siValue) > 0.01f || p.RawValue != rawValue || p.PercentValue != percentValue)
 					changed = true;
@@ -208,21 +240,21 @@ namespace RxMindstorms.Core
 				p.PercentValue = percentValue;
 			}
 
-			if(	Buttons.Back  != (c.Response.Data[index+0] == 1) ||
-				Buttons.Left  != (c.Response.Data[index+1] == 1) ||
-				Buttons.Up    != (c.Response.Data[index+2] == 1) ||
-				Buttons.Right != (c.Response.Data[index+3] == 1) ||
-				Buttons.Down  != (c.Response.Data[index+4] == 1) ||
-				Buttons.Enter != (c.Response.Data[index+5] == 1)
+			if(	Buttons.Back  != (response.Data[index+0] == 1) ||
+				Buttons.Left  != (response.Data[index+1] == 1) ||
+				Buttons.Up    != (response.Data[index+2] == 1) ||
+				Buttons.Right != (response.Data[index+3] == 1) ||
+				Buttons.Down  != (response.Data[index+4] == 1) ||
+				Buttons.Enter != (response.Data[index+5] == 1)
 			)
 				changed = true;
 
-			Buttons.Back	= (c.Response.Data[index+0] == 1);
-			Buttons.Left	= (c.Response.Data[index+1] == 1);
-			Buttons.Up		= (c.Response.Data[index+2] == 1);
-			Buttons.Right	= (c.Response.Data[index+3] == 1);
-			Buttons.Down	= (c.Response.Data[index+4] == 1);
-			Buttons.Enter	= (c.Response.Data[index+5] == 1);
+			Buttons.Back	= (response.Data[index+0] == 1);
+			Buttons.Left	= (response.Data[index+1] == 1);
+			Buttons.Up		= (response.Data[index+2] == 1);
+			Buttons.Right	= (response.Data[index+3] == 1);
+			Buttons.Down	= (response.Data[index+4] == 1);
+			Buttons.Enter	= (response.Data[index+5] == 1);
 
 			return (changed || _alwaysSendEvents)
 				? new BrickChangedEventArgs { Ports = this.Ports, Buttons = this.Buttons }

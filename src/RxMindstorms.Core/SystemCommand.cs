@@ -64,20 +64,18 @@ namespace RxMindstorms.Core
 
 		internal async Task DeleteFileAsyncInternal(string devicePath)
 		{
-			Response r = ResponseManager.CreateResponse();
 			Command c = new Command(CommandType.SystemReply);
 			c.DeleteFile(devicePath);
-			await _brick.SendCommandAsyncInternal(c);
+			Response r = await _brick.SendCommandAsyncInternal(c);
 			if(r.SystemReplyStatus != SystemReplyStatus.Success)
 				throw new Exception("Error deleting file: " + r.SystemReplyStatus);
 		}
 
 		internal async Task CreateDirectoryAsyncInternal(string devicePath)
 		{
-			Response r = ResponseManager.CreateResponse();
 			Command c = new Command(CommandType.SystemReply);
 			c.CreateDirectory(devicePath);
-			await _brick.SendCommandAsyncInternal(c);
+			Response r = await _brick.SendCommandAsyncInternal(c);
 			if(r.SystemReplyStatus != SystemReplyStatus.Success)
 				throw new Exception("Error creating directory: " + r.SystemReplyStatus);
 		}
@@ -97,11 +95,11 @@ namespace RxMindstorms.Core
 			commandBegin.AddRawParameter((uint)data.Length);
 			commandBegin.AddRawParameter(devicePath);
 
-			await _brick.SendCommandAsyncInternal(commandBegin);
-			if(commandBegin.Response.SystemReplyStatus != SystemReplyStatus.Success)
-				throw new Exception("Could not begin file save: " + commandBegin.Response.SystemReplyStatus);
+			var response = await _brick.SendCommandAsyncInternal(commandBegin);
+			if(response.SystemReplyStatus != SystemReplyStatus.Success)
+				throw new Exception("Could not begin file save: " + response.SystemReplyStatus);
 
-			byte handle = commandBegin.Response.Data[0];
+			byte handle = response.Data[0];
 			int sizeSent = 0;
 
 			while(sizeSent < data.Length)
@@ -113,10 +111,10 @@ namespace RxMindstorms.Core
 				commandContinue.AddRawParameter(data, sizeSent, sizeToSend);
 				sizeSent += sizeToSend;
 
-				await _brick.SendCommandAsyncInternal(commandContinue);
-				if(commandContinue.Response.SystemReplyStatus != SystemReplyStatus.Success &&
-					(commandContinue.Response.SystemReplyStatus != SystemReplyStatus.EndOfFile && sizeSent == data.Length))
-					throw new Exception("Error saving file: " + commandContinue.Response.SystemReplyStatus);
+				response = await _brick.SendCommandAsyncInternal(commandContinue);
+				if(response.SystemReplyStatus != SystemReplyStatus.Success &&
+					(response.SystemReplyStatus != SystemReplyStatus.EndOfFile && sizeSent == data.Length))
+					throw new Exception("Error saving file: " + response.SystemReplyStatus);
 			}
 
 			//Command commandClose = new Command(CommandType.SystemReply);

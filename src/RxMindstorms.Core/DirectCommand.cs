@@ -623,12 +623,12 @@ namespace RxMindstorms.Core
 		{
 			Command c = new Command(CommandType.DirectReply, 0x10, 0);
 			c.GetFirwmareVersion(0x10, 0);
-			await _brick.SendCommandAsyncInternal(c);
-			if(c.Response.Data == null)
+			var response = await _brick.SendCommandAsyncInternal(c);
+			if(response.Data == null)
 				return null;
 
-			int index = Array.IndexOf(c.Response.Data, (byte)0);
-			return Encoding.UTF8.GetString(c.Response.Data, 0, index);
+			int index = Array.IndexOf(response.Data, (byte)0);
+			return Encoding.UTF8.GetString(response.Data, 0, index);
 		}
 
 		internal async Task<bool> IsBrickButtonPressedAsyncInternal(BrickButton button)
@@ -741,50 +741,50 @@ namespace RxMindstorms.Core
 		{
 			Command c = new Command(CommandType.DirectReply, 2, 0);
 			c.GetTypeMode(port, 0, 1);
-			await _brick.SendCommandAsyncInternal(c);
-			return c.Response.Data;
+			var response = await _brick.SendCommandAsyncInternal(c);
+			return response.Data;
 		}
 
 		internal async Task<float> ReadySIAsyncInternal(InputPort port, int mode)
 		{
 			Command c = new Command(CommandType.DirectReply, 4, 0);
 			c.ReadySI(port, mode, 0);
-			await _brick.SendCommandAsyncInternal(c);
-			return BitConverter.ToSingle(c.Response.Data, 0);
+			var response = await _brick.SendCommandAsyncInternal(c);
+			return BitConverter.ToSingle(response.Data, 0);
 		}
 
 		internal async Task<int> ReadyRawAsyncInternal(InputPort port, int mode)
 		{
 			Command c = new Command(CommandType.DirectReply, 4, 0);
 			c.ReadyRaw(port, mode, 0);
-			await _brick.SendCommandAsyncInternal(c);
-			return BitConverter.ToInt32(c.Response.Data, 0);
+			var response = await _brick.SendCommandAsyncInternal(c);
+			return BitConverter.ToInt32(response.Data, 0);
 		}
 
 		internal async Task<int> ReadyPercentAsyncInternal(InputPort port, int mode)
 		{
 			Command c = new Command(CommandType.DirectReply, 1, 0);
 			c.ReadyRaw(port, mode, 0);
-			await _brick.SendCommandAsyncInternal(c);
-			return c.Response.Data[0];
+			var response = await _brick.SendCommandAsyncInternal(c);
+			return response.Data[0];
 		}
 
 		internal async Task<string> GetDeviceNameAsyncInternal(InputPort port)
 		{
 			Command c = new Command(CommandType.DirectReply, 0x7f, 0);
 			c.GetDeviceName(port, 0x7f, 0);
-			await _brick.SendCommandAsyncInternal(c);
-			int index = Array.IndexOf(c.Response.Data, (byte)0);
-			return Encoding.UTF8.GetString(c.Response.Data, 0, index);
+			var response = await _brick.SendCommandAsyncInternal(c);
+			int index = Array.IndexOf(response.Data, (byte)0);
+			return Encoding.UTF8.GetString(response.Data, 0, index);
 		}
 
 		internal async Task<string> GetModeNameAsyncInternal(InputPort port, int mode)
 		{
 			Command c = new Command(CommandType.DirectReply, 0x7f, 0);
 			c.GetModeName(port, mode, 0x7f, 0);
-			await _brick.SendCommandAsyncInternal(c);
-			int index = Array.IndexOf(c.Response.Data, (byte)0);
-			return Encoding.UTF8.GetString(c.Response.Data, 0, index);
+			var response = await _brick.SendCommandAsyncInternal(c);
+			int index = Array.IndexOf(response.Data, (byte)0);
+			return Encoding.UTF8.GetString(response.Data, 0, index);
 		}
 
 		internal async Task OutputReadyAsyncInternal(OutputPort ports)

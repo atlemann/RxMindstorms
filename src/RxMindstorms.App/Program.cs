@@ -10,8 +10,10 @@ namespace RxMindstorms.App
         {
             var comm =
                 new UsbCommunication("EV3OLAV");
+            var responseManager =
+                new ResponseManager();
             var brick =
-                new Brick(comm);
+                new Brick(comm, responseManager);
 
             var obs =
                 brick
