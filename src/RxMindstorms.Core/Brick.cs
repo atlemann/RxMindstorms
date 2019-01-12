@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -159,7 +160,7 @@ namespace RxMindstorms.Core
 				: null;
 		}
 
-		internal IObservable<Response> SendCommand(Command command)
+		public IObservable<Unit> SendCommand(Command command)
 		{
 			var writeTask =
 				_comm.WriteAsync(command.ToBytes());
@@ -170,6 +171,7 @@ namespace RxMindstorms.Core
 					_subject
 						.AsObservable()
 						.Where(r => r != null && r.Sequence == command.SequenceNumber)
+						.Select(_ => Unit.Default)
 						.FirstAsync();
 
 			return
@@ -177,7 +179,7 @@ namespace RxMindstorms.Core
 					.FromAsync(async () =>
 						{
 							await writeTask;
-							return (Response) null;
+							return Unit.Default;
 						});
 		}
 
