@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace RxMindstorms.Core
+namespace RxMindstorms
 {
 	/// <summary>
 	/// Arguments for PortsChanged event

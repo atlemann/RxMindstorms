@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using HidSharp;
 
-namespace RxMindstorms.Core
+namespace RxMindstorms
 {
 	/// <summary>
 	/// Communicate with EV3 brick over USB HID.

@@ -1,6 +1,4 @@
-﻿using System.Threading;
-
-namespace RxMindstorms.Core
+﻿namespace RxMindstorms
 {
 	internal class Response
 	{

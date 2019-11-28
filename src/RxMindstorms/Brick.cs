@@ -7,7 +7,7 @@ using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace RxMindstorms.Core
+namespace RxMindstorms
 {
 	/// <summary>
 	/// Main EV3 brick interface

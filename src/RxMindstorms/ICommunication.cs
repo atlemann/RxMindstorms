@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace RxMindstorms.Core
+namespace RxMindstorms
 {
 	/// <summary>
 	/// Interface for communicating with the EV3 brick

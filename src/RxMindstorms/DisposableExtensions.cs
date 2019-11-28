@@ -1,7 +1,7 @@
 using System;
 using System.Reactive.Disposables;
 
-namespace RxMindstorms.Core
+namespace RxMindstorms
 {
     public static class DisposableExtensions
     {

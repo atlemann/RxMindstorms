@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Threading;
 
-namespace RxMindstorms.Core
+namespace RxMindstorms
 {
 	/// <summary>
 	/// An input or output port on the EV3 brick

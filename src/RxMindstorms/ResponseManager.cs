@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
-namespace RxMindstorms.Core
+namespace RxMindstorms
 {
 	public class ResponseManager
 	{

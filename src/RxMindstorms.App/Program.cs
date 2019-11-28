@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reactive.Linq;
-using RxMindstorms.Core;
 
 namespace RxMindstorms.App
 {
@@ -30,7 +29,7 @@ namespace RxMindstorms.App
             var subscription =
                 brick
                     .SendCommand(command)
-                    .Do(_ => Console.WriteLine("Waiting for command to finish..."))
+                    .Do(__ => Console.WriteLine("Waiting for command to finish..."))
                     .Subscribe();
 
             using (subscription)

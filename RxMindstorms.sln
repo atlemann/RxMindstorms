@@ -7,7 +7,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{26F12CA6-334
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RxMindstorms.App", "src\RxMindstorms.App\RxMindstorms.App.csproj", "{A1E64100-0B2D-4A0C-AA9C-70BC214AA6AA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RxMindstorms.Core", "src\RxMindstorms.Core\RxMindstorms.Core.csproj", "{67C77A3C-D67C-445D-A680-70A0479959FB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RxMindstorms", "src\RxMindstorms\RxMindstorms.csproj", "{67C77A3C-D67C-445D-A680-70A0479959FB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace RxMindstorms.Core
+namespace RxMindstorms
 {
 	/// <summary>
 	/// Event arguments for the ReportReceived event.

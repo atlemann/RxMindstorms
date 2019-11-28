@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace RxMindstorms.Core
+namespace RxMindstorms
 {
 	enum ArgumentSize
 	{
