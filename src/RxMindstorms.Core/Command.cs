@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,11 +14,6 @@ namespace RxMindstorms.Core
 		private readonly BinaryWriter _writer;
 		private readonly MemoryStream _stream;
 
-		internal Command(CommandType commandType, ushort sequenceNumber)
-			: this(commandType, 0, 0, sequenceNumber)
-		{
-		}
-		
 		/// <summary>
 		/// Start a new command of a speicifc type with a global and/or local buffer on the EV3 brick
 		/// </summary>
