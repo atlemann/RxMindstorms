@@ -7,7 +7,6 @@ namespace RxMindstorms.Core
 	public class ResponseManager
 	{
 		private ushort _nextSequence = 0x0001;
-		internal readonly Dictionary<int, Response> Responses = new Dictionary<int, Response>();
 
 		public ushort GetSequenceNumber()
 		{
@@ -16,26 +15,6 @@ namespace RxMindstorms.Core
 
 			return _nextSequence++;
 		}
-
-		// internal Response CreateResponse()
-		// {
-		// 	ushort sequence = GetSequenceNumber();
-
-		// 	Response r = new Response(sequence);
-		// 	Responses[sequence] = r;
-		// 	return r;
-		// }
-
-		// internal static async Task WaitForResponseAsync(Response r)
-		// {
-		// 	await Task.Run(() =>
-		// 	{
-		// 		if(r.Event.WaitOne(1000))
-		// 			Responses.Remove(r.Sequence);
-		// 		else
-		// 			r.ReplyType = ReplyType.DirectReplyError;
-		// 	});
-		// }
 
 		internal static Response CreateResponse(byte[] report)
 		{
