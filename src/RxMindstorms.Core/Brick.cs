@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Reactive;
 using System.Reactive.Disposables;
@@ -65,7 +65,7 @@ namespace RxMindstorms.Core
 		/// </summary>
 		public Command CreateCommand(CommandType commandType, ushort globalSize = 0, int localSize = 0) =>
 			new Command(commandType, globalSize, localSize, _responseManager.GetSequenceNumber());
-		
+
 		/// <summary>
 		/// Constructor
 		/// </summary>
@@ -121,8 +121,7 @@ namespace RxMindstorms.Core
 		public IObservable<BrickChangedEventArgs> Connect(TimeSpan pollingTime) =>
 			Observable.Create<BrickChangedEventArgs>(observer =>
 			{
-				var compositeDisposable =
-					new CompositeDisposable();
+				var compositeDisposable = new CompositeDisposable();
 
 				_comm
 					.Connect()
@@ -136,10 +135,8 @@ namespace RxMindstorms.Core
 					.Interval(pollingTime)
 					.SelectMany(async _ =>
 						{
-							var result =
-								await PollSensorsAsync();
-							await _directCommand
-								.StopMotorAsync(OutputPort.All, false);
+							var result = await PollSensorsAsync();
+							await _directCommand.StopMotorAsync(OutputPort.All, false);
 							return result;
 						})
 					.Where(e => e != null)
@@ -164,8 +161,7 @@ namespace RxMindstorms.Core
 
 		public IObservable<Unit> SendCommand(Command command)
 		{
-			var writeTask =
-				_comm.WriteAsync(command.ToBytes());
+			var writeTask = _comm.WriteAsync(command.ToBytes());
 			
 			if (command.CommandType == CommandType.DirectReply ||
 				command.CommandType == CommandType.SystemReply)
@@ -191,8 +187,7 @@ namespace RxMindstorms.Core
 			const int responseSize = 11;
 			int index = 0;
 
-			Command command =
-				CreateCommand(CommandType.DirectReply, (8 * responseSize) + 6, 0);
+			Command command = CreateCommand(CommandType.DirectReply, (8 * responseSize) + 6, 0);
 
 			foreach(InputPort i in Enum.GetValues(typeof(InputPort)))
 			{
@@ -215,8 +210,7 @@ namespace RxMindstorms.Core
 			command.IsBrickButtonPressed(BrickButton.Down,  (byte)(index+4));
 			command.IsBrickButtonPressed(BrickButton.Enter, (byte)(index+5));
 
-			var response =
-				await SendCommandAsyncInternal(command);
+			var response = await SendCommandAsyncInternal(command);
 
 			if(response?.Data == null)
 				return null;
