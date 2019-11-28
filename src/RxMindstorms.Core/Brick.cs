@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Reactive;
 using System.Reactive.Disposables;
@@ -61,7 +61,7 @@ namespace RxMindstorms.Core
 		public SystemCommand SystemCommand => _systemCommand;
 
 		/// <summary>
-		/// Send a batch command of multiple direct commands at once.  Call the <see cref="Command.Initialize"/> method with the proper <see cref="CommandType"/> to set the type of command the batch should be executed as.
+		/// Create a batch command of multiple direct commands at once.
 		/// </summary>
 		public Command CreateCommand(CommandType commandType, ushort globalSize = 0, int localSize = 0) =>
 			new Command(commandType, globalSize, localSize, _responseManager.GetSequenceNumber());
@@ -70,6 +70,7 @@ namespace RxMindstorms.Core
 		/// Constructor
 		/// </summary>
 		/// <param name="comm">Object implementing the <see cref="ICommunication"/> interface for talking to the brick</param>
+		/// <param name="responseManager">The response manager used to get sequence numbers and create reports</param>
 		public Brick(ICommunication comm, ResponseManager responseManager)
 			: this(comm, responseManager, false) { }
 
@@ -77,6 +78,7 @@ namespace RxMindstorms.Core
 		/// Constructor
 		/// </summary>
 		/// <param name="comm">Object implementing the <see cref="ICommunication"/> interface for talking to the brick</param>
+		/// <param name="responseManager">The response manager used to get sequence numbers and create reports</param>
 		/// <param name="alwaysSendEvents">Send events when data changes, or at every poll</param>
 		public Brick(ICommunication comm, ResponseManager responseManager, bool alwaysSendEvents)
 		{
@@ -115,7 +117,7 @@ namespace RxMindstorms.Core
 		/// Connect to the EV3 brick with a specified polling time.
 		/// </summary>
 		/// <param name="pollingTime">The period to poll the device status.  Set to TimeSpan.Zero to disable polling.</param>
-		/// <returns></returns>
+		/// <returns>Observable with brick changed events</returns>
 		public IObservable<BrickChangedEventArgs> Connect(TimeSpan pollingTime) =>
 			Observable.Create<BrickChangedEventArgs>(observer =>
 			{
