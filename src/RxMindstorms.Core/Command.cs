@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,6 +25,7 @@ namespace RxMindstorms.Core
 		/// <param name="commandType">The type of the command to start</param>
 		/// <param name="globalSize">The size of the global buffer in bytes (maximum of 1024 bytes)</param>
 		/// <param name="localSize">The size of the local buffer in bytes (maximum of 64 bytes)</param>
+		/// <param name="sequenceNumber">Sequence number used to identify the command</param>
 		internal Command(CommandType commandType, ushort globalSize, int localSize, ushort sequenceNumber)
 		{
 			if(globalSize > 1024)
