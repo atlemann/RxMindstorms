@@ -10,36 +10,9 @@ namespace RxMindstorms.Core
 	/// </summary>
 	public sealed class Command
 	{
-		private BinaryWriter _writer;
-		private MemoryStream _stream;
-		private readonly Brick _brick;
-
-		internal CommandType CommandType { get; set; }
-
-		internal Response Response { get; set; }
-
-		internal Command(Brick brick) : this(CommandType.DirectNoReply)
-		{
-			_brick = brick;
-		}
-
-		internal Command(CommandType commandType) : this(commandType, 0, 0)
-		{
-		}
-
-		internal Command(CommandType commandType, ushort globalSize, int localSize)
-		{
-			Initialize(commandType, globalSize, localSize);
-		}
-
-		/// <summary>
-		/// Start a new command of a specific type
-		/// </summary>
-		/// <param name="commandType">The type of the command to start</param>
-		public void Initialize(CommandType commandType)
-		{
-			Initialize(commandType, 0, 0);
-		}
+		private readonly ushort  _sequenceNumber;
+		private readonly BinaryWriter _writer;
+		private readonly MemoryStream _stream;
 
 		/// <summary>
 		/// Start a new command of a speicifc type with a global and/or local buffer on the EV3 brick
@@ -47,16 +20,17 @@ namespace RxMindstorms.Core
 		/// <param name="commandType">The type of the command to start</param>
 		/// <param name="globalSize">The size of the global buffer in bytes (maximum of 1024 bytes)</param>
 		/// <param name="localSize">The size of the local buffer in bytes (maximum of 64 bytes)</param>
-		public void Initialize(CommandType commandType, ushort globalSize, int localSize)
+		/// <param name="sequenceNumber">Sequence number used to identify the command</param>
+		internal Command(CommandType commandType, ushort globalSize, int localSize, ushort sequenceNumber)
 		{
 			if(globalSize > 1024)
 				throw new ArgumentException("Global buffer must be less than 1024 bytes", nameof(globalSize));
 			if(localSize > 64)
 				throw new ArgumentException("Local buffer must be less than 64 bytes", nameof(localSize));
 
+			_sequenceNumber = sequenceNumber;
 			_stream = new MemoryStream();
 			_writer = new BinaryWriter(_stream);
-			Response = ResponseManager.CreateResponse();
 
 			CommandType = commandType;
 
@@ -64,7 +38,7 @@ namespace RxMindstorms.Core
 			_writer.Write((ushort)0xffff);
 
 			// 2 bytes
-			_writer.Write(Response.Sequence);
+			_writer.Write(sequenceNumber);
 
 			// 1 byte
 			_writer.Write((byte)commandType);
@@ -76,6 +50,11 @@ namespace RxMindstorms.Core
 				_writer.Write((byte)((localSize << 2) | (globalSize >> 8) & 0x03)); // upper bits of globalSize + localSize
 			}
 		}
+
+		internal ushort SequenceNumber =>
+			_sequenceNumber;
+
+		internal CommandType CommandType { get; set; }
 
 		internal void AddOpcode(Opcode opcode)
 		{
@@ -875,36 +854,6 @@ namespace RxMindstorms.Core
 			AddOpcode(Opcode.OutputReady);
 			AddParameter(0x00);			// layer
 			AddParameter((byte)ports);	// ports
-		}
-
-		/// <summary>
-		/// End and send a Command to the EV3 brick.
-		/// </summary>
-		/// <returns>A byte array containing the response from the brick, if any.</returns>
-		public 
-#if WINRT
-		IAsyncOperation<IBuffer>
-#else
-		async Task<byte[]>
-#endif
-		SendCommandAsync()
-		{
-#if WINRT
-			return AsyncInfo.Run(async _ => 
-			{
-				await _brick.SendCommandAsyncInternal(this);
-				byte[] response = Response.Data;
-				Initialize(CommandType.DirectNoReply);
-				if(response == null)
-					return null;
-				return response.AsBuffer();
-			});
-#else
-			await _brick.SendCommandAsyncInternal(this);
-			byte[] response = Response.Data;
-			Initialize(CommandType.DirectNoReply);
-			return response;
-#endif
 		}
 	}
 }
