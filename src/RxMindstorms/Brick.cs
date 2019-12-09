@@ -180,6 +180,20 @@ namespace RxMindstorms
 							return Unit.Default;
 						});
 		}
+		
+		public async Task SendCommandAsync(Command command)
+		{
+			await _comm.WriteAsync(command.ToBytes());
+			
+			if (command.CommandType == CommandType.DirectReply ||
+			    command.CommandType == CommandType.SystemReply)
+				await
+					_subject
+						.AsObservable()
+						.Where(r => r != null && r.Sequence == command.SequenceNumber)
+						.Select(_ => Unit.Default)
+						.FirstAsync();
+		}
 
 		private async Task<BrickChangedEventArgs> PollSensorsAsync()
 		{

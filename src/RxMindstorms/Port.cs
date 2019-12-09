@@ -1,6 +1,8 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Reactive.Linq;
 
 namespace RxMindstorms
 {
@@ -197,5 +199,12 @@ namespace RxMindstorms
 					_context.Post(delegate { handler(this, new PropertyChangedEventArgs(propertyName)); }, null);
 			}
 		}
+
+		public IObservable<(Port, string)> Changes() =>
+			Observable
+				.FromEventPattern<PropertyChangedEventHandler, PropertyChangedEventArgs>(
+					h => PropertyChanged += h,
+					h => PropertyChanged -= h)
+				.Select(x => (x.Sender as Port, x.EventArgs.PropertyName));
 	}
 }
