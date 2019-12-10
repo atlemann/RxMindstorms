@@ -169,6 +169,16 @@ module Builder =
                 yield! currentState
                 yield MotorAction (MotorPorts.get motor, StepMotorSync {| Power= power; TurnRatio = turnRatio; Steps = steps; Break = breakMode |})
             }
+
+        member __.Run(actions) =
+            //fun (command:Command) -> Seq.fold updateCommand command state    
+            fun (brick:Brick) ->
+                let emptyCommand = brick.CreateCommand(CommandType.DirectReply)
+
+                actions
+                |> Seq.fold updateCommand emptyCommand
+                |> brick.SendCommandAsync
+                |> Async.AwaitTask
             
     let mindstorms = MindstormsBuilder()
 

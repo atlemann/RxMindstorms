@@ -25,8 +25,24 @@ let main argv =
         // Start (Motor OutputPort.A)
         }
 
-    let cmd = createCommand brick snippet
-    brick.SendCommandAsync(cmd) |> ignore
+    async {
+        do! brick
+            |> mindstorms {
+                TurnForTime 1000u (Motors [ OutputPort.A; OutputPort.B ]) With Power 50 Then Break
+                Start (Motor OutputPort.A)
+                }
+
+        do! brick
+            |> mindstorms {
+                TurnForTime 1000u (Motors [ OutputPort.A; OutputPort.B ]) With Power 50 Then Break
+                TurnForTime 1000u (Motors [ OutputPort.A; OutputPort.B ]) With Power -50 Then Break
+                Stop (Motor OutputPort.A)
+                }            
+    }
+    |> Async.RunSynchronously
+
+    //let cmd = createCommand brick snippet
+    //brick.SendCommandAsync(cmd) |> ignore
 
     // // let x =
     //    brick
